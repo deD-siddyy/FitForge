@@ -1,0 +1,23 @@
+.assessment-container {
+  max-width: 800px;
+  margin: 0 auto;
+}
+
+.assessment-form-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 1.5rem;
+}
+
+.assessment-footer {
+  margin-top: 2rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid var(--border-color);
+  text-align: right;
+}
+
+@media (max-width: 600px) {
+  .assessment-form-grid {
+    grid-template-columns: 1fr;
+  }
+}
