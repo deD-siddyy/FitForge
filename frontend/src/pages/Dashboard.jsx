@@ -25,7 +25,7 @@ const Dashboard = () => {
       setLoading(true);
       setError(null);
       const response = await dashboardService.get();
-      // Backend typically sends { success: true, data: { today: {...}, weekly: {...} } }
+
       setData(response.data.data);
     } catch (err) {
       setError(err.response?.data?.message || 'Failed to load dashboard data. Please try again.');
@@ -53,7 +53,6 @@ const Dashboard = () => {
     );
   }
 
-  // Fallback to avoid crashes if data is missing
   const today = data?.today || {};
   const weekly = data?.weekly || {};
   
@@ -61,7 +60,7 @@ const Dashboard = () => {
   const hasWater = today.water?.entries > 0;
   const hasWorkout = today.workout?.count > 0;
 
-  // Format chart data date strings
+
   const formatDate = (dateString) => {
     const d = new Date(dateString);
     return `${d.getMonth() + 1}/${d.getDate()}`;

@@ -7,9 +7,6 @@ const {
   getDietRecommendation,
 } = require('../utils/fitnessService');
 
-// ─────────────────────────────────────────────────────────
-// Helper: run all calculations and build recommendation objects
-// ─────────────────────────────────────────────────────────
 const computeAssessment = (data) => {
   const { weight, height, age, gender, activityLevel, goal, workoutExperience } = data;
 
@@ -22,16 +19,12 @@ const computeAssessment = (data) => {
   return { bmi, bmr, dailyCalorieTarget, workoutRecommendation, dietRecommendation };
 };
 
-// ─────────────────────────────────────────────────────────
-// @desc    Create a new fitness assessment
-// @route   POST /api/fitness/assessment
-// @access  Private
-// ─────────────────────────────────────────────────────────
+
 const createAssessment = async (req, res, next) => {
   try {
     const { age, gender, height, weight, goal, activityLevel, workoutExperience } = req.body;
 
-    // Check: does user already have an assessment?
+
     const existing = await FitnessAssessment.findOne({ user: req.user._id });
     if (existing) {
       return res.status(409).json({
@@ -40,7 +33,7 @@ const createAssessment = async (req, res, next) => {
       });
     }
 
-    // Run all backend calculations — never trust client-sent BMI/BMR/calories
+
     const computed = computeAssessment({ age, gender, height, weight, goal, activityLevel, workoutExperience });
 
     const assessment = await FitnessAssessment.create({
@@ -61,11 +54,7 @@ const createAssessment = async (req, res, next) => {
   }
 };
 
-// ─────────────────────────────────────────────────────────
-// @desc    Get current user's fitness assessment
-// @route   GET /api/fitness/assessment
-// @access  Private
-// ─────────────────────────────────────────────────────────
+
 const getAssessment = async (req, res, next) => {
   try {
     const assessment = await FitnessAssessment.findOne({ user: req.user._id });
@@ -83,11 +72,7 @@ const getAssessment = async (req, res, next) => {
   }
 };
 
-// ─────────────────────────────────────────────────────────
-// @desc    Update the current user's fitness assessment
-// @route   PUT /api/fitness/assessment
-// @access  Private
-// ─────────────────────────────────────────────────────────
+
 const updateAssessment = async (req, res, next) => {
   try {
     const assessment = await FitnessAssessment.findOne({ user: req.user._id });
@@ -99,7 +84,6 @@ const updateAssessment = async (req, res, next) => {
       });
     }
 
-    // Merge existing fields with updates — so partial updates work
     const merged = {
       age:               req.body.age               ?? assessment.age,
       gender:            req.body.gender            ?? assessment.gender,
@@ -110,7 +94,7 @@ const updateAssessment = async (req, res, next) => {
       workoutExperience: req.body.workoutExperience ?? assessment.workoutExperience,
     };
 
-    // Re-compute everything from the merged data
+
     const computed = computeAssessment(merged);
 
     const updated = await FitnessAssessment.findOneAndUpdate(
@@ -125,11 +109,6 @@ const updateAssessment = async (req, res, next) => {
   }
 };
 
-// ─────────────────────────────────────────────────────────
-// @desc    Get recommendation summary (shorthand read-only)
-// @route   GET /api/fitness/recommendation
-// @access  Private
-// ─────────────────────────────────────────────────────────
 const getRecommendation = async (req, res, next) => {
   try {
     const assessment = await FitnessAssessment.findOne({ user: req.user._id });

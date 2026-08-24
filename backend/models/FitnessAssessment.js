@@ -6,7 +6,7 @@ const fitnessAssessmentSchema = new mongoose.Schema(
       type: mongoose.Schema.Types.ObjectId,
       ref: 'User',
       required: true,
-      unique: true, // One assessment per user (current profile)
+      unique: true,
     },
     age: {
       type: Number,
@@ -59,12 +59,12 @@ const fitnessAssessmentSchema = new mongoose.Schema(
       },
     },
 
-    // Calculated fields – computed by backend, never trusted from client
+
     bmi: { type: Number },
     bmr: { type: Number },
     dailyCalorieTarget: { type: Number },
 
-    // Rule-based recommendations
+
     workoutRecommendation: { type: Object },
     dietRecommendation: { type: Object },
   },

@@ -4,24 +4,12 @@ import { authService } from '../services';
 
 const TOKEN_KEY = 'fitforge_token';
 
-/**
- * AuthProvider — manages JWT token lifecycle.
- *
- * On mount:   reads stored token from localStorage and validates
- *             it against GET /api/auth/profile.
- * login():    calls POST /api/auth/login, stores token.
- * register(): calls POST /api/auth/register, stores token.
- * logout():   clears token from storage and resets state.
- *
- * Exposes via context:
- *   user, token, loading, isAuthenticated, login, register, logout
- */
+
 export const AuthProvider = ({ children }) => {
   const [user,    setUser]    = useState(null);
   const [token,   setToken]   = useState(() => localStorage.getItem(TOKEN_KEY));
-  const [loading, setLoading] = useState(true); // blocks render until initial check done
+  const [loading, setLoading] = useState(true); 
 
-  // Validate stored token on app mount
   useEffect(() => {
     const validateToken = async () => {
       const stored = localStorage.getItem(TOKEN_KEY);
@@ -30,7 +18,7 @@ export const AuthProvider = ({ children }) => {
           const { data } = await authService.profile();
           if (data.success) setUser(data);
         } catch {
-          // Token expired or invalid — clear it silently
+        
           localStorage.removeItem(TOKEN_KEY);
           setToken(null);
         }

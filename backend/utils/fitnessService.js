@@ -1,29 +1,17 @@
-/**
- * fitnessService.js
- * Pure rule-based calculation and recommendation logic.
- * No DB calls, no Express — just deterministic computation.
- */
-
-// ─────────────────────────────────────────────────────────
-// BMI
-// ─────────────────────────────────────────────────────────
 const calculateBMI = (weightKg, heightCm) => {
+  if (!weightKg || !heightCm) return null;
   const heightM = heightCm / 100;
   return parseFloat((weightKg / (heightM * heightM)).toFixed(2));
 };
 
-// ─────────────────────────────────────────────────────────
-// BMR — Mifflin-St Jeor equation
-// ─────────────────────────────────────────────────────────
+
 const calculateBMR = (weightKg, heightCm, age, gender) => {
   const base = 10 * weightKg + 6.25 * heightCm - 5 * age;
   const bmr = gender === 'male' ? base + 5 : base - 161;
   return parseFloat(bmr.toFixed(2));
 };
 
-// ─────────────────────────────────────────────────────────
-// TDEE → Daily Calorie Target
-// ─────────────────────────────────────────────────────────
+
 const ACTIVITY_MULTIPLIERS = {
   sedentary:          1.2,
   lightly_active:     1.375,
@@ -40,18 +28,15 @@ const GOAL_ADJUSTMENTS = {
 const calculateDailyCalories = (bmr, activityLevel, goal) => {
   const tdee = bmr * ACTIVITY_MULTIPLIERS[activityLevel];
   const target = tdee + GOAL_ADJUSTMENTS[goal];
-  // Enforce minimum safe calorie floor
+
   return Math.max(1200, parseFloat(target.toFixed(0)));
 };
 
-// ─────────────────────────────────────────────────────────
-// Rule-Based Workout Recommendation
-// ─────────────────────────────────────────────────────────
+
 const getWorkoutRecommendation = (goal, workoutExperience, activityLevel) => {
   const key = `${workoutExperience}_${goal}`;
 
   const plans = {
-    // ── BEGINNER ───────────────────────────────────────
     beginner_weight_loss: {
       focus: 'Full-body workouts + steady-state cardio',
       weeklyFrequency: '3–4 days/week',
@@ -97,7 +82,6 @@ const getWorkoutRecommendation = (goal, workoutExperience, activityLevel) => {
       notes: 'Maintain activity and healthy habits.',
     },
 
-    // ── INTERMEDIATE ───────────────────────────────────
     intermediate_weight_loss: {
       focus: 'Resistance training + HIIT cardio',
       weeklyFrequency: '4–5 days/week',
@@ -137,7 +121,6 @@ const getWorkoutRecommendation = (goal, workoutExperience, activityLevel) => {
       notes: 'Focus on consistency and balanced nutrition.',
     },
 
-    // ── ADVANCED ───────────────────────────────────────
     advanced_weight_loss: {
       focus: 'High-volume resistance training + cardio periodisation',
       weeklyFrequency: '5–6 days/week',
@@ -179,9 +162,7 @@ const getWorkoutRecommendation = (goal, workoutExperience, activityLevel) => {
   return plans[key] || plans[`${workoutExperience}_maintenance`];
 };
 
-// ─────────────────────────────────────────────────────────
-// Rule-Based Diet Recommendation
-// ─────────────────────────────────────────────────────────
+
 const getDietRecommendation = (goal, dailyCalorieTarget) => {
   const base = {
     dailyCalorieTarget,

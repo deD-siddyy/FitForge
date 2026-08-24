@@ -1,7 +1,4 @@
-/**
- * Custom API Error class.
- * Extends the native Error with an HTTP status code.
- */
+
 class ApiError extends Error {
   constructor(message, statusCode) {
     super(message);

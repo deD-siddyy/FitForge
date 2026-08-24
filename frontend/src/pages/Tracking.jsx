@@ -3,7 +3,7 @@ import { useDocumentTitle } from '../hooks';
 import { trackingService } from '../services';
 import './Tracking.css';
 
-// ─── Exercise Data ────────────────────────────────────────────────────────────
+// ─── Exercise Data 
 const MUSCLE_GROUPS = [
   { id: 'chest',     label: 'Chest',      image: '/anatomy/chest_muscle.jpg',     workoutType: 'strength' },
   { id: 'back',      label: 'Back',       image: '/anatomy/back_muscle.jpg',      workoutType: 'strength' },
@@ -30,7 +30,7 @@ const EXERCISES = {
   fullbody:  ['Deadlift', 'Clean and Press', 'Burpees', 'Kettlebell Swings', 'Thrusters', 'Box Jumps'],
 };
 
-// ─── Food Data ────────────────────────────────────────────────────────────────
+// ─── Food Data 
 const FOOD_DB = [
   { name: 'Chicken Breast',    calories: 165, protein: 31, carbs: 0,  fats: 3.6, per: '100g' },
   { name: 'Chicken Thigh',     calories: 209, protein: 26, carbs: 0,  fats: 11,  per: '100g' },
@@ -61,7 +61,7 @@ const FOOD_DB = [
   { name: 'Whey Protein',      calories: 400, protein: 80, carbs: 10, fats: 5,   per: '100g' },
 ];
 
-// ─── Helpers ──────────────────────────────────────────────────────────────────
+// ─── Helpers
 const DEFAULT_EXERCISE = {
   name: '', muscleGroup: '', sets: '', reps: '', weightKg: '', duration: '', notes: '',
 };
@@ -69,7 +69,7 @@ const DEFAULT_NUTRITION = {
   foodName: '', mealType: 'lunch', quantity: '', calories: '', protein: '', carbs: '', fats: '', notes: '',
 };
 
-// ─── Autocomplete Component ───────────────────────────────────────────────────
+// ─── Autocomplete Component 
 const Autocomplete = ({ value, onChange, suggestions, placeholder, onSelect }) => {
   const [open, setOpen] = useState(false);
   const ref = useRef(null);
@@ -108,9 +108,9 @@ const Autocomplete = ({ value, onChange, suggestions, placeholder, onSelect }) =
   );
 };
 
-// ════════════════════════════════════════════════════════════
+
 // WORKOUT SECTION
-// ════════════════════════════════════════════════════════════
+
 const WorkoutSection = () => {
   const [selectedGroup, setSelectedGroup] = useState(null);
   const [exerciseList, setExerciseList] = useState([]); // queued exercises
@@ -359,9 +359,9 @@ const WorkoutSection = () => {
   );
 };
 
-// ════════════════════════════════════════════════════════════
+
 // NUTRITION SECTION
-// ════════════════════════════════════════════════════════════
+
 const NutritionSection = () => {
   const [form, setForm] = useState({ ...DEFAULT_NUTRITION });
   const [errors, setErrors] = useState({});
@@ -403,8 +403,7 @@ const NutritionSection = () => {
     if (Object.keys(e2).length) { setErrors(e2); return; }
     setIsSubmitting(true); setErrorMsg(''); setSuccessMsg('');
     try {
-      // Backend mealType enum: breakfast, lunch, dinner, snack
-      // pre-workout and post-workout map to snack since backend doesn't support them yet
+     
       const mealTypeMap = {
         breakfast: 'breakfast', lunch: 'lunch', dinner: 'dinner',
         snack: 'snack', preworkout: 'snack', postworkout: 'snack',
@@ -531,9 +530,8 @@ const NutritionSection = () => {
   );
 };
 
-// ════════════════════════════════════════════════════════════
 // MAIN PAGE
-// ════════════════════════════════════════════════════════════
+
 const Tracking = () => {
   useDocumentTitle('Tracking');
   const [activeTab, setActiveTab] = useState('workout');

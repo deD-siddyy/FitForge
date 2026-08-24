@@ -4,7 +4,6 @@ const Nutrition = require('../models/Nutrition');
 const Water     = require('../models/Water');
 const Weight    = require('../models/Weight');
 
-// ─── Helper ──────────────────────────────────────────────
 const isValidId = (id) => mongoose.Types.ObjectId.isValid(id);
 
 const startOfDay = (date) => {
@@ -18,13 +17,7 @@ const endOfDay = (date) => {
   return d;
 };
 
-// ═══════════════════════════════════════════════════════════
-// WORKOUT
-// ═══════════════════════════════════════════════════════════
 
-// @desc  Create workout entry
-// @route POST /api/tracking/workout
-// @access Private
 const createWorkout = async (req, res, next) => {
   try {
     const { date, workoutType, duration, exercises, caloriesBurned, notes } = req.body;
@@ -45,9 +38,6 @@ const createWorkout = async (req, res, next) => {
   }
 };
 
-// @desc  Get all workouts for current user (optional ?date=YYYY-MM-DD filter)
-// @route GET /api/tracking/workout
-// @access Private
 const getWorkouts = async (req, res, next) => {
   try {
     const filter = { user: req.user._id };
@@ -64,9 +54,6 @@ const getWorkouts = async (req, res, next) => {
   }
 };
 
-// @desc  Update a workout
-// @route PUT /api/tracking/workout/:id
-// @access Private
 const updateWorkout = async (req, res, next) => {
   try {
     if (!isValidId(req.params.id)) {
@@ -98,9 +85,7 @@ const updateWorkout = async (req, res, next) => {
   }
 };
 
-// @desc  Delete a workout
-// @route DELETE /api/tracking/workout/:id
-// @access Private
+
 const deleteWorkout = async (req, res, next) => {
   try {
     if (!isValidId(req.params.id)) {
@@ -123,13 +108,7 @@ const deleteWorkout = async (req, res, next) => {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// NUTRITION
-// ═══════════════════════════════════════════════════════════
 
-// @desc  Log a nutrition entry
-// @route POST /api/tracking/nutrition
-// @access Private
 const createNutrition = async (req, res, next) => {
   try {
     const { date, foodName, mealType, calories, protein, carbs, fats } = req.body;
@@ -151,9 +130,6 @@ const createNutrition = async (req, res, next) => {
   }
 };
 
-// @desc  Get nutrition diary (optional ?date=YYYY-MM-DD)
-// @route GET /api/tracking/nutrition
-// @access Private
 const getNutrition = async (req, res, next) => {
   try {
     const filter = { user: req.user._id };
@@ -165,7 +141,7 @@ const getNutrition = async (req, res, next) => {
 
     const entries = await Nutrition.find(filter).sort({ date: -1 });
 
-    // Aggregate totals
+
     const totals = entries.reduce(
       (acc, e) => ({
         calories: acc.calories + e.calories,
@@ -182,9 +158,6 @@ const getNutrition = async (req, res, next) => {
   }
 };
 
-// @desc  Update a nutrition entry
-// @route PUT /api/tracking/nutrition/:id
-// @access Private
 const updateNutrition = async (req, res, next) => {
   try {
     if (!isValidId(req.params.id)) {
@@ -216,9 +189,7 @@ const updateNutrition = async (req, res, next) => {
   }
 };
 
-// @desc  Delete a nutrition entry
-// @route DELETE /api/tracking/nutrition/:id
-// @access Private
+
 const deleteNutrition = async (req, res, next) => {
   try {
     if (!isValidId(req.params.id)) {
@@ -241,13 +212,7 @@ const deleteNutrition = async (req, res, next) => {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// WATER
-// ═══════════════════════════════════════════════════════════
 
-// @desc  Log water intake
-// @route POST /api/tracking/water
-// @access Private
 const createWater = async (req, res, next) => {
   try {
     const { date, amountMl } = req.body;
@@ -264,9 +229,6 @@ const createWater = async (req, res, next) => {
   }
 };
 
-// @desc  Get water intake history (optional ?date=YYYY-MM-DD)
-// @route GET /api/tracking/water
-// @access Private
 const getWater = async (req, res, next) => {
   try {
     const filter = { user: req.user._id };
@@ -285,13 +247,7 @@ const getWater = async (req, res, next) => {
   }
 };
 
-// ═══════════════════════════════════════════════════════════
-// WEIGHT
-// ═══════════════════════════════════════════════════════════
 
-// @desc  Log weight
-// @route POST /api/tracking/weight
-// @access Private
 const createWeight = async (req, res, next) => {
   try {
     const { date, weight } = req.body;
@@ -308,9 +264,7 @@ const createWeight = async (req, res, next) => {
   }
 };
 
-// @desc  Get weight history
-// @route GET /api/tracking/weight
-// @access Private
+
 const getWeight = async (req, res, next) => {
   try {
     const entries = await Weight.find({ user: req.user._id }).sort({ date: -1 });

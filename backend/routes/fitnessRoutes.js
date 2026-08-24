@@ -8,7 +8,7 @@ const {
 } = require('../controllers/fitnessController');
 const { protect } = require('../middleware/authMiddleware');
 
-// All routes require authentication
+
 router.route('/assessment')
   .post(protect, createAssessment)
   .get(protect, getAssessment)

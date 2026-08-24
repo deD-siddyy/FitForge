@@ -3,16 +3,12 @@ const Nutrition = require('../models/Nutrition');
 const Water     = require('../models/Water');
 const Weight    = require('../models/Weight');
 
-// ─── Date helpers ─────────────────────────────────────────
+
 const startOfDay = (d) => { const x = new Date(d); x.setHours(0, 0, 0, 0);       return x; };
 const endOfDay   = (d) => { const x = new Date(d); x.setHours(23, 59, 59, 999);   return x; };
 const daysAgo    = (n) => { const x = new Date(); x.setDate(x.getDate() - n);     return x; };
 
-// ─────────────────────────────────────────────────────────
-// @desc  Get user dashboard — today's stats + 7-day history
-// @route GET /api/dashboard
-// @access Private
-// ─────────────────────────────────────────────────────────
+
 const getDashboard = async (req, res, next) => {
   try {
     const userId  = req.user._id;
@@ -20,9 +16,7 @@ const getDashboard = async (req, res, next) => {
     const todayStart = startOfDay(today);
     const todayEnd   = endOfDay(today);
 
-    // ── TODAY'S DATA ──────────────────────────────────────
 
-    // Today's nutrition — calories + macros
     const todayNutrition = await Nutrition.find({
       user: userId,
       date: { $gte: todayStart, $lte: todayEnd },
@@ -33,39 +27,36 @@ const getDashboard = async (req, res, next) => {
     const todayCarbs    = todayNutrition.reduce((s, e) => s + e.carbs,    0);
     const todayFats     = todayNutrition.reduce((s, e) => s + e.fats,     0);
 
-    // Today's water
+
     const todayWater = await Water.find({
       user: userId,
       date: { $gte: todayStart, $lte: todayEnd },
     });
     const todayWaterMl = todayWater.reduce((s, e) => s + e.amountMl, 0);
 
-    // Today's workouts
     const todayWorkouts = await Workout.find({
       user: userId,
       date: { $gte: todayStart, $lte: todayEnd },
     });
     const todayCaloriesBurned = todayWorkouts.reduce((s, w) => s + w.caloriesBurned, 0);
 
-    // Latest weight entry
+
     const latestWeight = await Weight.findOne({ user: userId }).sort({ date: -1 });
 
-    // ── LAST 7 DAYS ───────────────────────────────────────
-    const weekStart = startOfDay(daysAgo(6)); // 6 days ago = 7-day window
 
-    // Weight history
+    const weekStart = startOfDay(daysAgo(6)); 
+
     const weeklyWeights = await Weight.find({
       user: userId,
       date: { $gte: weekStart, $lte: todayEnd },
     }).sort({ date: 1 });
 
-    // Calorie trend — group by day
     const weeklyNutrition = await Nutrition.find({
       user: userId,
       date: { $gte: weekStart, $lte: todayEnd },
     }).sort({ date: 1 });
 
-    // Build daily calorie map (last 7 days)
+
     const calorieTrendMap = {};
     for (let i = 6; i >= 0; i--) {
       const d = daysAgo(i);
@@ -80,13 +71,12 @@ const getDashboard = async (req, res, next) => {
     });
     const calorieTrend = Object.entries(calorieTrendMap).map(([date, calories]) => ({ date, calories }));
 
-    // Weekly workout count
+
     const weeklyWorkoutCount = await Workout.countDocuments({
       user: userId,
       date: { $gte: weekStart, $lte: todayEnd },
     });
 
-    // Weekly water intake trend
     const weeklyWater = await Water.find({
       user: userId,
       date: { $gte: weekStart, $lte: todayEnd },
@@ -106,7 +96,6 @@ const getDashboard = async (req, res, next) => {
     });
     const waterTrend = Object.entries(waterTrendMap).map(([date, ml]) => ({ date, ml }));
 
-    // ── RESPONSE ─────────────────────────────────────────
     res.status(200).json({
       success: true,
       data: {

@@ -7,14 +7,14 @@ const Navbar = () => {
   const navigate = useNavigate();
   const { user, logout } = useAuth();
   
-  // Basic navigation items
+
   const navItems = [
     { path: '/dashboard', label: 'Dashboard', icon: '📊' },
     { path: '/tracking', label: 'Tracking', icon: '📝' },
     { path: '/assessment', label: 'Assessment', icon: '📋' },
   ];
 
-  // Hide nav on login/register pages
+
   if (location.pathname === '/login' || location.pathname === '/register') {
     return null;
   }
