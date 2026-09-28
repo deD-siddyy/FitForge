@@ -2,7 +2,6 @@ const User = require('../models/User');
 const generateToken = require('../utils/generateToken');
 
 const registerUser = async (req, res, next) => {
-      console.log("🔥 REGISTER CONTROLLER HIT");
   try {
     const { name, email, password } = req.body;
 
@@ -43,7 +42,6 @@ const registerUser = async (req, res, next) => {
 
 
 const loginUser = async (req, res, next) => {
-  console.log("🔥 LOGIN CONTROLLER HIT");
   try {
     const { email, password } = req.body;
 

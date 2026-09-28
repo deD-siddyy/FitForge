@@ -33,6 +33,7 @@ body {
   color: var(--text-main);
   line-height: 1.5;
   -webkit-font-smoothing: antialiased;
+  overflow-x: hidden;
 }
 
 a {
@@ -61,6 +62,7 @@ button {
   min-height: 100vh;
   display: flex;
   flex-direction: column;
+  overflow-x: hidden;
 }
 
 .main-content {
@@ -69,6 +71,12 @@ button {
   max-width: 1200px;
   margin: 0 auto;
   padding: 2rem 1rem;
+}
+
+@media (max-width: 768px) {
+  .main-content {
+    padding: 1.25rem 0.875rem 5rem;
+  }
 }
 
 /* Common UI Elements */

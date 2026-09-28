@@ -530,6 +530,238 @@ const NutritionSection = () => {
   );
 };
 
+// WATER SECTION
+
+const QUICK_WATER = [
+  { label: '1 Glass', ml: 250 },
+  { label: '½ Litre', ml: 500 },
+  { label: '1 Litre', ml: 1000 },
+  { label: 'Bottle', ml: 750 },
+];
+
+const WaterSection = () => {
+  const [amountMl, setAmountMl] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [todayEntries, setTodayEntries] = useState([]);
+  const [todayTotal, setTodayTotal] = useState(0);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+
+  const fetchToday = async () => {
+    try {
+      setLoadingHistory(true);
+      const today = new Date().toISOString().split('T')[0];
+      const res = await trackingService.getWater(today);
+      setTodayEntries(res.data.data || []);
+      setTodayTotal(res.data.totalMl || 0);
+    } catch {
+      setTodayEntries([]);
+      setTodayTotal(0);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => { fetchToday(); }, []);
+
+  const handleQuickAdd = (ml) => {
+    setAmountMl(String(ml));
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const val = Number(amountMl);
+    if (!val || val < 1) { setErrorMsg('Enter a valid amount (min 1 ml).'); return; }
+    if (val > 5000) { setErrorMsg('Maximum 5000 ml per entry.'); return; }
+    setIsSubmitting(true); setErrorMsg(''); setSuccessMsg('');
+    try {
+      await trackingService.createWater({ amountMl: val });
+      setSuccessMsg(`✅ ${val} ml logged successfully!`);
+      setAmountMl('');
+      await fetchToday();
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || 'Failed to log water. Please try again.');
+    } finally { setIsSubmitting(false); }
+  };
+
+  const goalMl = 3000;
+  const pct = Math.min(100, Math.round((todayTotal / goalMl) * 100));
+
+  return (
+    <div className="tracking-section">
+      <div className="tracking-section-header">
+        <div className="tracking-icon">💧</div>
+        <div>
+          <h2 className="tracking-title">Water Intake</h2>
+          <p className="tracking-subtitle">Stay hydrated — track every glass.</p>
+        </div>
+      </div>
+
+      {successMsg && <div className="track-alert track-alert-success">{successMsg}</div>}
+      {errorMsg   && <div className="track-alert track-alert-error">{errorMsg}</div>}
+
+      <div className="water-progress-bar-container">
+        <div className="water-progress-label">
+          <span>Today: <strong>{todayTotal} ml</strong></span>
+          <span>{pct}% of {goalMl / 1000}L goal</span>
+        </div>
+        <div className="water-progress-track">
+          <div className="water-progress-fill" style={{ width: `${pct}%` }} />
+        </div>
+      </div>
+
+      <div className="water-quick-btns">
+        {QUICK_WATER.map(q => (
+          <button key={q.ml} type="button" className={`water-quick-btn ${String(amountMl) === String(q.ml) ? 'active' : ''}`}
+            onClick={() => handleQuickAdd(q.ml)}>
+            {q.label}<span className="water-quick-ml">{q.ml} ml</span>
+          </button>
+        ))}
+      </div>
+
+      <form onSubmit={handleSubmit} className="water-form">
+        <div className="form-group">
+          <label>Amount (ml) <span className="required-tag">*</span></label>
+          <input type="number" className="form-control" placeholder="e.g. 250"
+            min="1" max="5000" value={amountMl}
+            onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
+            onChange={e => setAmountMl(e.target.value.replace('-', ''))} />
+        </div>
+        <button type="submit" className="btn-primary btn-submit-water" disabled={isSubmitting}>
+          {isSubmitting ? 'LOGGING...' : 'LOG WATER'}
+        </button>
+      </form>
+
+      <div className="water-history">
+        <h3 className="history-title">Today's Log</h3>
+        {loadingHistory ? (
+          <div className="empty-tracker">Loading...</div>
+        ) : todayEntries.length === 0 ? (
+          <div className="empty-tracker">No water logged today. Start hydrating!</div>
+        ) : (
+          <div className="history-list">
+            {todayEntries.map((entry, i) => (
+              <div key={entry._id || i} className="history-item">
+                <span className="history-item-icon">💧</span>
+                <span className="history-item-value">{entry.amountMl} ml</span>
+                <span className="history-item-time">{new Date(entry.date).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
+// WEIGHT SECTION
+
+const WeightSection = () => {
+  const [weight, setWeight] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
+  const [successMsg, setSuccessMsg] = useState('');
+  const [errorMsg, setErrorMsg] = useState('');
+  const [history, setHistory] = useState([]);
+  const [loadingHistory, setLoadingHistory] = useState(true);
+
+  const fetchHistory = async () => {
+    try {
+      setLoadingHistory(true);
+      const res = await trackingService.getWeight();
+      setHistory(res.data.data || []);
+    } catch {
+      setHistory([]);
+    } finally {
+      setLoadingHistory(false);
+    }
+  };
+
+  useEffect(() => { fetchHistory(); }, []);
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    const val = Number(weight);
+    if (!val || val < 10) { setErrorMsg('Enter a valid weight (min 10 kg).'); return; }
+    if (val > 500) { setErrorMsg('Maximum 500 kg.'); return; }
+    setIsSubmitting(true); setErrorMsg(''); setSuccessMsg('');
+    try {
+      await trackingService.createWeight({ weight: val });
+      setSuccessMsg(`✅ Weight ${val} kg logged successfully!`);
+      setWeight('');
+      await fetchHistory();
+    } catch (err) {
+      setErrorMsg(err.response?.data?.message || 'Failed to log weight. Please try again.');
+    } finally { setIsSubmitting(false); }
+  };
+
+  const latest = history.length > 0 ? history[0] : null;
+  const previous = history.length > 1 ? history[1] : null;
+  const diff = latest && previous ? (latest.weight - previous.weight).toFixed(1) : null;
+
+  return (
+    <div className="tracking-section">
+      <div className="tracking-section-header">
+        <div className="tracking-icon">⚖️</div>
+        <div>
+          <h2 className="tracking-title">Weight Tracker</h2>
+          <p className="tracking-subtitle">Log your body weight to monitor progress.</p>
+        </div>
+      </div>
+
+      {successMsg && <div className="track-alert track-alert-success">{successMsg}</div>}
+      {errorMsg   && <div className="track-alert track-alert-error">{errorMsg}</div>}
+
+      {latest && (
+        <div className="weight-current-card">
+          <div className="weight-current-label">Current Weight</div>
+          <div className="weight-current-value">{latest.weight} <span>kg</span></div>
+          {diff !== null && (
+            <div className={`weight-diff ${Number(diff) > 0 ? 'up' : Number(diff) < 0 ? 'down' : 'same'}`}>
+              {Number(diff) > 0 ? '▲' : Number(diff) < 0 ? '▼' : '—'} {Math.abs(Number(diff))} kg from previous
+            </div>
+          )}
+          <div className="weight-current-date">Last updated: {new Date(latest.date).toLocaleDateString()}</div>
+        </div>
+      )}
+
+      <form onSubmit={handleSubmit} className="weight-form">
+        <div className="form-group">
+          <label>Weight (kg) <span className="required-tag">*</span></label>
+          <input type="number" className="form-control" placeholder="e.g. 72.5"
+            min="10" max="500" step="0.1" value={weight}
+            onKeyDown={(e) => { if (e.key === '-') e.preventDefault(); }}
+            onChange={e => setWeight(e.target.value.replace('-', ''))} />
+        </div>
+        <button type="submit" className="btn-primary btn-submit-weight" disabled={isSubmitting}>
+          {isSubmitting ? 'LOGGING...' : 'LOG WEIGHT'}
+        </button>
+      </form>
+
+      <div className="weight-history">
+        <h3 className="history-title">Recent History</h3>
+        {loadingHistory ? (
+          <div className="empty-tracker">Loading...</div>
+        ) : history.length === 0 ? (
+          <div className="empty-tracker">No weight entries yet. Log your first weigh-in!</div>
+        ) : (
+          <div className="history-list">
+            {history.slice(0, 10).map((entry, i) => (
+              <div key={entry._id || i} className="history-item">
+                <span className="history-item-icon">⚖️</span>
+                <span className="history-item-value">{entry.weight} kg</span>
+                <span className="history-item-time">{new Date(entry.date).toLocaleDateString()}</span>
+              </div>
+            ))}
+          </div>
+        )}
+      </div>
+    </div>
+  );
+};
+
+
 // MAIN PAGE
 
 const Tracking = () => {
@@ -540,7 +772,7 @@ const Tracking = () => {
     <div className="tracking-page">
       <div className="page-header">
         <h1 className="page-title">Daily Tracking</h1>
-        <p className="page-subtitle">Log your workouts and nutrition to stay on track.</p>
+        <p className="page-subtitle">Log your workouts, nutrition, water and weight to stay on track.</p>
       </div>
 
       {/* Tab switcher */}
@@ -557,11 +789,25 @@ const Tracking = () => {
         >
           🥗 Nutrition
         </button>
+        <button
+          className={`tracking-tab ${activeTab === 'water' ? 'active' : ''}`}
+          onClick={() => setActiveTab('water')}
+        >
+          💧 Water
+        </button>
+        <button
+          className={`tracking-tab ${activeTab === 'weight' ? 'active' : ''}`}
+          onClick={() => setActiveTab('weight')}
+        >
+          ⚖️ Weight
+        </button>
       </div>
 
       <div className="tracking-tab-content">
         {activeTab === 'workout'   && <WorkoutSection />}
         {activeTab === 'nutrition' && <NutritionSection />}
+        {activeTab === 'water'     && <WaterSection />}
+        {activeTab === 'weight'    && <WeightSection />}
       </div>
     </div>
   );
